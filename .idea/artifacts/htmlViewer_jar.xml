@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="htmlViewer:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/htmlViewer_jar</output-path>
+    <root id="archive" name="htmlViewer.jar">
+      <element id="module-output" name="htmlViewer" />
+    </root>
+  </artifact>
+</component>
