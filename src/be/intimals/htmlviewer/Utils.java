@@ -2,8 +2,7 @@ package be.intimals.htmlviewer;
 
 import java.io.*;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -120,6 +119,27 @@ public class Utils {
             e.printStackTrace();
         }
         return doc;
+    }
+
+    /**
+     * read Python source code
+     * @param fileName
+     * @return
+     */
+    public static List<String> readPyFile(String fileName){
+        List<String> results = new LinkedList<>();
+        try {
+            Reader fileReader = new FileReader(fileName);
+            BufferedReader bufReader = new BufferedReader(fileReader);
+            String line = bufReader.readLine();
+            while( line != null){
+                results.add(line);
+                line = bufReader.readLine();
+            }
+        }catch (Exception e){
+            System.out.println("Read python file error");
+        }
+        return results;
     }
 
     /**

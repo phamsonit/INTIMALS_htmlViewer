@@ -9,6 +9,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.List;
 
 import static be.intimals.htmlviewer.Utils.*;
 import static be.intimals.htmlviewer.Variables.*;
@@ -23,6 +24,8 @@ public class HTMLViewer {
     private Map<Integer, Set<String> > matchedLines;
     //store node IDs of a match in XML file
     private Set<Integer> nodeIdOfMatch;
+    //python source code
+    private List<String> pythonSource;
 
     public HTMLViewer(File _inputSourceDir, File _inputResultDir, File _htmlDir){
         this.inputSourceDir = _inputSourceDir.getAbsolutePath();
@@ -76,7 +79,7 @@ public class HTMLViewer {
 
         //for each pattern find its matches from allMatches
         String patternContent = HTMLHEADER;
-        patternContent += "<p><h3>List patterns</h3></p>\n";
+        patternContent += "<p><h3>List patterns: " + getLastName(inputResultDir) +"</h3></p>\n";
         for(int i = 1; i<=nbPattern; ++i){
             String aPattern = "<p><a href= \"pattern_"+i+"_matches_old.html\" target=\"center\">["+i+"]- pattern "+i+"</a></p>";
             patternContent += aPattern+"\n";
@@ -110,7 +113,7 @@ public class HTMLViewer {
         int nbPattern = allPatterns.getLength(); //count number of patterns
         //for each pattern find its matches from allMatches
         String patternContent = HTMLHEADER;
-        patternContent += "<p><h3>Patterns</h3></p>\n";
+        patternContent += "<p><h3>List patterns: " + getLastName(inputResultDir) +"</h3></p>\n";
         for(int i = 1; i<=nbPattern; ++i){
             //get support
             String[] support = findSupport(i, allPatterns).split("-");
@@ -159,12 +162,12 @@ public class HTMLViewer {
                     //TODO: consider java case
                     String xmlFile = pyFileName.substring(0, pyFileName.length() - 2) + "xml";
                     //find lines of a match in xmlFile
-                    findLineVariableNames(match, xmlFile);
+                    findLineVariableNames(match, xmlFile, pyFileName);
                     //add markers to lines corresponding lines in python file
                     String newContent = HTMLHEADER+
                             "Source code:"+ pyFileName +
                             "<code>\n" +
-                            addMarkers(pyFileName)+
+                            addMarkers()+
                             "</code>\n" +
                             HTMLCLOSE;
                     //write patternID_match_ID content to html file
@@ -188,15 +191,17 @@ public class HTMLViewer {
     }
 
     /**
-     * find lines and variable names of a match
+     * find lines and variable names of a match to add color markers
      * @param match     : one match
      * @param XMLFile   : XML file
      */
-    private void findLineVariableNames(Node match, String XMLFile){
+    private void findLineVariableNames(Node match, String XMLFile, String PythonFile){
         //store lines and variable names
         matchedLines = new HashMap<>();
         //store match node ids of a match
         nodeIdOfMatch = getNodeIdOfMatch(match);
+        //read python file
+        pythonSource = readPyFile(PythonFile);
         //read XML document
         Document doc = readXML(XMLFile);
         //get all nodes of the match
@@ -246,36 +251,47 @@ public class HTMLViewer {
                         String nodeColNr = node.getAttributes().getNamedItem("ColNr").getNodeValue();
                         String nodeEndColNr = node.getAttributes().getNamedItem("EndColNr").getNodeValue();
 
+                        int variableLength = Integer.valueOf(nodeEndColNr) - Integer.valueOf(nodeColNr);
+                        boolean isMultipleLines =  Integer.valueOf(nodeEndLineNr) > Integer.valueOf(nodeLineNr);
                         String variableName="";
                         //get variable name
-                        if(node.getChildNodes().getLength()==1){
-                            variableName = nodeColNr + numSep + nodeEndColNr + strSep + node.getTextContent();
-                        }else{
-                            //find dummy variable line and column number
-                            //intermediate node, keywords like ClassDef, FunctionDef, If,
-                            if(isDummyMatch(matchID, node) && !getDummyVariable(node).isEmpty()) {
-                                //System.out.println(node.getNodeName()+" "+getDummyVariable(node));
-                                variableName = nodeColNr + numSep + nodeEndColNr + strSep + getDummyVariable(node)+strSep+"dummy";
+                        if( isMultipleLines && node.getChildNodes().getLength() == 1 ) {
+                            variableName = "comment";
+                        }else {
+                            if (node.getChildNodes().getLength() == 1) {
+                                variableName = nodeColNr + numSep + nodeEndColNr + strSep + node.getTextContent().trim();
+                            } else {
+                                //find dummy variable line and column number
+                                //intermediate node, keywords like ClassDef, FunctionDef, If,
+                                if (isDummyMatch(matchID, node) && !getDummyVariable(node).isEmpty()) {
+                                    //System.out.println(node.getNodeName()+" "+getDummyVariable(node));
+                                    variableName = nodeColNr + numSep + nodeEndColNr + strSep + getDummyVariable(node) + strSep + "dummy";
+                                }
                             }
                         }
 
-                        //this node doesn't have variable name or dummy name
+                        //this node doesn't have variable name or dummy name, e.g, Module, Func, ...
                         if(variableName.isEmpty()) return;
 
-                        //ignore intermediate nodes which have multiple lines of code
-                        if((Integer.valueOf(nodeEndLineNr) > Integer.valueOf(nodeLineNr) &&
-                                node.getChildNodes().getLength() > 1) ) {
-                            // ??
+                        if( isMultipleLines && node.getChildNodes().getLength() > 1) {
+                            // dummy variable is in multiple lines, e.g, comments
+                            if(isDummyMatch(matchID, node) && !getDummyVariable(node).isEmpty()){
+                                addMultipleLineID(nodeLineNr, nodeEndLineNr);
+                            }
                         }else{
-                            //true variable has multiple lines, e.g, comments
-                            if((Integer.valueOf(nodeEndLineNr) > Integer.valueOf(nodeLineNr) &&
-                                    node.getChildNodes().getLength() == 1)){
-                                for (int i = Integer.valueOf(nodeLineNr); i <= Integer.valueOf(nodeEndLineNr); ++i) {
-                                    addLineAndVariables(variableName, i);
-                                }
+                            // matched variable has multiple lines, e.g, comments
+                            if( isMultipleLines && node.getChildNodes().getLength() == 1){
+                                addMultipleLineID(nodeLineNr, nodeEndLineNr);
                             }else {
-                                //true variable in single line
-                                addLineAndVariables(variableName, Integer.valueOf(nodeLineNr));
+                                int lineLength = pythonSource.get(Integer.valueOf(nodeLineNr)-1).length()-1;
+                                if(variableLength == lineLength) {
+                                    // add matched comment in single line
+                                    addLineAndVariables("", Integer.valueOf(nodeLineNr));
+                                }
+                                else {
+                                    // add matched variable in single line
+                                    addLineAndVariables(variableName, Integer.valueOf(nodeLineNr));
+                                }
                             }
                         }
                     } else {//search matchID in children list
@@ -297,6 +313,13 @@ public class HTMLViewer {
             }
         }catch (Exception e){
             e.printStackTrace();
+        }
+    }
+
+    private void addMultipleLineID(String nodeLineNr, String nodeEndLineNr) {
+        for (int i = Integer.valueOf(nodeLineNr); i <= Integer.valueOf(nodeEndLineNr); ++i) {
+            //add an empty string to this line id
+            addLineAndVariables("", i);
         }
     }
 
@@ -389,40 +412,37 @@ public class HTMLViewer {
 
     /**
      * add makers to Python file
-     * @param pyFile
      * @return
      */
-    private String addMarkers(String pyFile){
+    private String addMarkers(){
         StringBuilder sb = new StringBuilder();
         try {
-            //read python file
-            Reader fileReader = new FileReader(pyFile);
-            BufferedReader bufReader = new BufferedReader(fileReader);
-            String line = bufReader.readLine();
-            int lineCount = 1;
-            while( line != null){
-                if(matchedLines.containsKey(lineCount)){
+            for(int i=0; i<pythonSource.size(); ++i){
+                String line = pythonSource.get(i);
+                if(matchedLines.containsKey(i+1)){
                     //System.out.println("old "+line);
-                    //add color marker to variable names
-                    line = addMarkerToVariable(line, matchedLines.get(lineCount));
-                    //System.out.println("variable "+matchedLines.get(lineCount));
-                    //add color marker to keywords
-                    line = addMarkerToKeyword(line, keywords);
-                    //add marker to highlight entire line
-                    String newLine = "<pre><p><mark>" + line + "</mark><p></pre>" + "\n";
+                    String newLine;
+                    // if this line contains an empty string this line is comment
+                    if(matchedLines.get(i+1).contains("")){
+                        newLine = "<pre><p><mark><"+COMMENT+">" + line + "</"+COMMENT+"></mark><p></pre>" + "\n";
+                    }else{
+                        //add color marker to variable names
+                        line = addMarkerToVariable(line, matchedLines.get(i+1));
+                        //add color marker to keywords
+                        line = addMarkerToKeyword(line, keywords);
+                        //add marker to highlight entire line
+                        newLine = "<pre><p><mark>" + line + "</mark><p></pre>" + "\n";
+                    }
                     sb.append(newLine);
                     //System.out.println("new "+newLine);
                 }else{
                     String newLine = "<pre>" + line + "</pre>\n";
                     sb.append(newLine);
                 }
-                line = bufReader.readLine();
-                ++lineCount;
             }
         }catch (Exception e){
             e.printStackTrace();
         }
-
         return sb.toString();
     }
 
@@ -434,32 +454,37 @@ public class HTMLViewer {
      * @return
      */
     private String addMarkerToVariable(String line, Set<String> variables){
-        while(!variables.isEmpty()){
-            Iterator<String> variable = variables.iterator();
-            if(variable.hasNext()){
-                String element = variable.next();
-                String[]temp = element.split(strSep); // dummy/variable = ColNr#EndColNr;variableName;dummy / ColNr#EndColNr;variableName
+        try {
+            while (!variables.isEmpty()) {
+                Iterator<String> variable = variables.iterator();
+                if (variable.hasNext()) {
+                    String element = variable.next();
+                    String[] temp = element.split(strSep); // dummy/variable = ColNr#EndColNr;variableName;dummy / ColNr#EndColNr;variableName
 
-                String markedIdentifier;
-                if(temp.length == 2) {
-                    markedIdentifier = "<" + VARCOLOR + ">" + temp[1] + "</" + VARCOLOR + ">";
-                }else{
-                    markedIdentifier = "<"+DUMCOLOR+">" + temp[1] + "</"+DUMCOLOR+">";
-                }
-                //find the current colNr
-                int from = Integer.valueOf(temp[0].split(numSep)[0]);
-                int to = Integer.valueOf(temp[0].split(numSep)[1]);
-                //replace marked identifier
-                line = line.substring(0, from-1) +
-                        markedIdentifier +
-                        line.substring(to);
-                //remover current variable
-                variable.remove();
-                //update column number for other variables
-                if(!variables.isEmpty()){
-                    variables = updateVariableColNr(variables, from);
+                    String markedIdentifier;
+                    if (temp.length == 2) {
+                        markedIdentifier = "<" + VARCOLOR + ">" + temp[1] + "</" + VARCOLOR + ">";
+                    } else {
+                        markedIdentifier = "<" + DUMCOLOR + ">" + temp[1] + "</" + DUMCOLOR + ">";
+                    }
+                    //find the current colNr
+                    int from = Integer.valueOf(temp[0].split(numSep)[0]);
+                    int to = Integer.valueOf(temp[0].split(numSep)[1]);
+                    //replace marked identifier
+                    line = line.substring(0, from - 1) +
+                            markedIdentifier +
+                            line.substring(to);
+                    //remover current variable
+                    variable.remove();
+                    //update column number for other variables
+                    if (!variables.isEmpty()) {
+                        variables = updateVariableColNr(variables, from);
+                    }
                 }
             }
+        }catch (Exception e){
+            System.out.println("add color marker error");
+            System.out.println(line+" "+variables);
         }
         return line;
     }

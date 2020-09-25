@@ -13,6 +13,7 @@ public class Variables {
     public static final String KEYCOLOR = "kc";
     public static final String VARCOLOR = "vc";
     public static final String DUMCOLOR = "dc";
+    public static final String COMMENT = "cm";
 
     public static final String HTMLHEADER = "<!DOCTYPE html>\n" +
             "<html>\n" +
@@ -44,12 +45,17 @@ public class Variables {
             "}\n"+
             //keyword color
             "kc{\n" +
-            "   color: #c33;\n" +
+            "   color: #D75E0E;\n" +
             "}\n"+
             //dummy variable color
             "dc{\n"+
             "  color: red;\n"+
+            "}\n" +
+            // comment color
+            "cm{\n"+
+            "  color: #0ED7AF;\n"+
             "}\n"
+
             ;
 
     private static String a = "=,False,None,True,and,as,assert,async,await,break,class,continue,def,del,elif,else,except,finally,for,from,global,if,import,in,is,lambda,nonlocal,not,or,pass,raise,return,try,while,with,yield";
