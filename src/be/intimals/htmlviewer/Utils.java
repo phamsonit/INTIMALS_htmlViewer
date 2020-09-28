@@ -24,7 +24,7 @@ public class Utils {
     public static int findIdentifierIndex(String inputString, String identifier){
         int index = inputString.indexOf(identifier);
         //identifier at the beginning of the line
-        if(index<=0)
+        if(index <= 0)
             return 1;
         //find true identifier: a string lies in between 2 non-alphabet characters
         if(index + identifier.length() < inputString.length() &&
@@ -64,7 +64,7 @@ public class Utils {
 
         //create matches.html file
         String matchesContent = HTMLHEADER+
-                "<p><h3>Matches</h3></p>\n" +
+                "<p>Matches</p>\n" +
                 "\t   choose a pattern to show its matches\n" +
                 HTMLCLOSE;
         String matchesFile = htmlDir+"/matches.html";
@@ -72,17 +72,11 @@ public class Utils {
 
         //create sourcecode.html file
         String sourcecodeContent = HTMLHEADER+
-                "<p><h3>Source code</h3></p>\n" +
+                "<p>Source code</p>\n" +
                 "\t  choose a match to show its source code"+
                 HTMLCLOSE;
         String sourcecodeFile = htmlDir+"/sourcecode.html";
         writeHTML(sourcecodeFile, sourcecodeContent);
-
-        //create css file
-        String cssContent = LINKSTYLE;
-
-        String cssFile = htmlDir+"/link.css";
-        writeHTML(cssFile, cssContent);
     }
 
 

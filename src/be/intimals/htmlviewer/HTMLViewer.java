@@ -79,12 +79,15 @@ public class HTMLViewer {
 
         //for each pattern find its matches from allMatches
         String patternContent = HTMLHEADER;
-        patternContent += "<p><h3>List patterns: " + getLastName(inputResultDir) +"</h3></p>\n";
+        patternContent += AJAXString;
+        patternContent += "<p> Patterns: " + getLastName(inputResultDir) +"</p>\n";
+        patternContent += "<ul class=\"navbar-nav\">\n";
         for(int i = 1; i<=nbPattern; ++i){
-            String aPattern = "<p><a href= \"pattern_"+i+"_matches_old.html\" target=\"center\">["+i+"]- pattern "+i+"</a></p>";
+            String aPattern = "<li class=\"nav-item\"><a class=\"nav-link\" href= \"pattern_"+i+"_matches_old.html\" target=\"center\">["+i+"]- pattern "+i+"</a></li>";
             patternContent += aPattern+"\n";
             findMatchesOfPattern(i, allMatches, inputSourceDir, "old");
         }
+        patternContent += "</ul>\n";
         patternContent += HTMLCLOSE+"\n";
         //create a patterns.html to list all patterns found
         writeHTML(htmlDir+"/patterns.html", patternContent);
@@ -112,8 +115,9 @@ public class HTMLViewer {
 
         int nbPattern = allPatterns.getLength(); //count number of patterns
         //for each pattern find its matches from allMatches
-        String patternContent = HTMLHEADER;
-        patternContent += "<p><h3>List patterns: " + getLastName(inputResultDir) +"</h3></p>\n";
+        String patternContent = HTMLHEADER + AJAXString;
+        patternContent += "<p>List patterns: " + getLastName(inputResultDir) +"</p>\n";
+        patternContent += "<ul class=\"navbar-nav\">\n";
         for(int i = 1; i<=nbPattern; ++i){
             //get support
             String[] support = findSupport(i, allPatterns).split("-");
@@ -136,6 +140,7 @@ public class HTMLViewer {
             findMatchesOfPattern(i, allMatchesOld, oldInputSourceDir, "old");
             findMatchesOfPattern(i, allMatchesNew, newInputSourceDir, "new");
         }
+        patternContent += "</ul>\n";
         patternContent += HTMLCLOSE+"\n";
         //create a patterns.html to list all patterns found
         writeHTML(htmlDir+"/patterns.html", patternContent);
@@ -150,8 +155,9 @@ public class HTMLViewer {
     private void findMatchesOfPattern(int patternID, NodeList allMatches, String inputDir, String label){
         try {
             //for each match create a file named patternID_i_matchID_j
-            String matchesContent = HTMLHEADER;
-            matchesContent += "<p><h3>Matches of pattern-"+patternID+"</h3></p>\n";
+            String matchesContent = HTMLHEADER + AJAXString;
+            matchesContent += "<p>Matches of pattern-"+patternID+"</p>\n";
+            matchesContent += "<ul class=\"navbar-nav\">\n";
             int count = 1; //count number of matches
             for (int i = 0; i < allMatches.getLength(); ++i) {
                 String matchID = allMatches.item(i).getAttributes().getNamedItem("PatternID").getNodeValue();
@@ -174,14 +180,24 @@ public class HTMLViewer {
                     String htmlFileName = "patternID_"+patternID+"_matchID_"+String.valueOf(count)+"_"+label+".html";
                     writeHTML(htmlDir+"/"+htmlFileName, newContent);
 
-                    //add a link of match i to its matchesContent
+                    //add a link of match i^th to its matchesContent
                     String fullName = allMatches.item(i).getAttributes().getNamedItem("FullName").getNodeValue();
-                    matchesContent += "<p><a href=\""+htmlFileName+"\" target=\"right\">["+count+"]-"+fullName+"</a></p>\n";
+
+                    // add link id="act" to the first match
+                    if(count == 1){
+                        //matchesContent += "<li><a href=\""+htmlFileName+"\" target=\"right\" id=\"act\">["+count+"]-"+fullName+"</a></li>\n";
+                        matchesContent += "<li class=\"nav-item\"><a class=\"nav-link\" href=\""+htmlFileName+"\" target=\"right\" id=\"act\">["+count+"]-"+fullName+"</a></li>\n";
+                    }else{
+                        //matchesContent += "<li><a href=\""+htmlFileName+"\" target=\"right\">["+count+"]-"+fullName+"</a></li>\n";
+                        matchesContent += "<li class=\"nav-item\"><a class=\"nav-link\" href=\""+htmlFileName+"\" target=\"right\">["+count+"]-"+fullName+"</a></li>\n";
+                    }
+                    // increase number of visited match
                     ++count;
                 }
             }
             //write pattern_ID_matches content to file
             String tt = htmlDir+"/pattern_"+patternID+"_matches_"+label+".html";
+            matchesContent += "</ul>\n";
             matchesContent += HTMLCLOSE;
             writeHTML(tt, matchesContent);
 
@@ -269,7 +285,7 @@ public class HTMLViewer {
                                 }
                             }
                         }
-
+                        //TODO: add marker to keyword that lines in different line
                         //this node doesn't have variable name or dummy name, e.g, Module, Func, ...
                         if(variableName.isEmpty()) return;
 
@@ -283,7 +299,7 @@ public class HTMLViewer {
                             if( isMultipleLines && node.getChildNodes().getLength() == 1){
                                 addMultipleLineID(nodeLineNr, nodeEndLineNr);
                             }else {
-                                int lineLength = pythonSource.get(Integer.valueOf(nodeLineNr)-1).length()-1;
+                                int lineLength = pythonSource.get(Integer.valueOf(nodeLineNr)-1).trim().length()-1;
                                 if(variableLength == lineLength) {
                                     // add matched comment in single line
                                     addLineAndVariables("", Integer.valueOf(nodeLineNr));
@@ -498,20 +514,20 @@ public class HTMLViewer {
     private Set<String> updateVariableColNr(Set<String> variables, int from) {
         Set<String> newVariables = new HashSet<>();
         for (Iterator<String> variableLoop = variables.iterator(); variableLoop.hasNext(); ) {
-            String elementLoop = variableLoop.next();
-            String[] tempLoop = elementLoop.split(strSep);
-            int fromLoop = Integer.valueOf(tempLoop[0].split(numSep)[0]);
-            int toLoop = Integer.valueOf(tempLoop[0].split(numSep)[1]);
+            String element = variableLoop.next();
+            String[] temp = element.split(strSep);
+            int fromLoop = Integer.valueOf(temp[0].split(numSep)[0]);
+            int toLoop = Integer.valueOf(temp[0].split(numSep)[1]);
             if (fromLoop > from) {
                 fromLoop += nbAddedCharacters; //number of added characters
                 toLoop += nbAddedCharacters; //number of added characters
             }
             //update colNr
             String newVariable;
-            if (tempLoop.length == 2) {
-                newVariable = String.valueOf(fromLoop) + numSep + toLoop + strSep + tempLoop[1];
+            if (temp.length == 2) {
+                newVariable = String.valueOf(fromLoop) + numSep + toLoop + strSep + temp[1];
             } else {
-                newVariable = String.valueOf(fromLoop) + numSep + toLoop + strSep + tempLoop[1] + strSep + tempLoop[2];
+                newVariable = String.valueOf(fromLoop) + numSep + toLoop + strSep + temp[1] + strSep + temp[2];
             }
             newVariables.add(newVariable);
         }

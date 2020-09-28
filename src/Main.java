@@ -12,10 +12,9 @@ public class Main {
 
     public static void main(String[] args) {
 
-        args = new String[2];
-        args[0] = "/Users/user/Working/INTIMALS/softs/tree-miner/fret_java/python/sample_data/sample_input_new";
-        //args[1] = "/Users/user/Working/INTIMALS/softs/tree-miner/fret_java/python/sample_data/sample_output_new";
-        args[1] = "/Users/user/Working/INTIMALS/softs/tree-miner/fret_java/python/sample_data/sample_output_new_Module";
+//        args = new String[2];
+//        args[0] = "/Users/user/Working/INTIMALS/softs/tree-miner/fret_java/python/sample_data/sample_input_new";
+//        args[1] = "/Users/user/Working/INTIMALS/softs/tree-miner/fret_java/python/sample_data/sample_output_new_abstract_leaf_Func";
 
         File inputSource = null;
         File inputResult;
