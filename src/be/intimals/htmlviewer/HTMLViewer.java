@@ -127,9 +127,9 @@ public class HTMLViewer {
             //create a link for this pattern in the pattern file
             String aPattern =
                     "<li class=\"nav-item\">" + "pattern-"+i+": \n" +
-                        "<a class=\"nav-link\" href= \"pattern_"+i+"_matches_old.html\" target=\"center\">"+oldSup+" matches old</a>" +
+                        "<a class=\"nav-link\" href= \"pattern_"+i+"_matches_old.html\" target=\"center\">"+oldSup+" matches pos</a>" +
                         "   /\n" +
-                        "<a class=\"nav-link\" href= \"pattern_"+i+"_matches_new.html\" target=\"center\">"+newSup+" matches old</a>" +
+                        "<a class=\"nav-link\" href= \"pattern_"+i+"_matches_new.html\" target=\"center\">"+newSup+" matches nag</a>" +
                      "</li>\n" ;
 
             patternContent += aPattern;
