@@ -47,6 +47,14 @@ public class Variables {
             "            color: green; \n" +
             "        } \n" +
             "  \n" +
+            "        .nav-item{ \n" +
+            "           margin: 10px 0;\n" +
+            "        } \n" +
+            "  \n" +
+            "        .navbar-nav{ \n" +
+            "       list-style-type: none;\n" +
+            "        } \n" +
+            "  \n" +
             "        .nav-item>a:hover { \n" +
             "            color: red; \n" +
             "        } \n" +
@@ -55,20 +63,22 @@ public class Variables {
             "        .navbar-nav>.active>a { \n" +
             "            background-color: #C0C0C0; \n" +
             "            color: green; \n" +
-            "       }\n";
+            "        } \n" +
+            "   \n";
 
 
     // css colors for highlight source code
     private static String highLightColor =
+            // true variable color
             "   vc{\n" +
             "       color: red;\n" +
             "       font-weight:bold;"+
             "   }\n"+
-            //keyword color
+            // keyword color
             "   kc{\n" +
             "       color: #D75E0E;\n" +
             "   }\n"+
-            //dummy variable color
+            // dummy variable color
             "   dc{\n"+
             "       color: red;\n"+
             "   }\n" +

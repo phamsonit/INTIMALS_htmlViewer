@@ -83,7 +83,7 @@ public class HTMLViewer {
         patternContent += "<p> Patterns: " + getLastName(inputResultDir) +"</p>\n";
         patternContent += "<ul class=\"navbar-nav\">\n";
         for(int i = 1; i<=nbPattern; ++i){
-            String aPattern = "<li class=\"nav-item\"><a class=\"nav-link\" href= \"pattern_"+i+"_matches_old.html\" target=\"center\">["+i+"]- pattern "+i+"</a></li>";
+            String aPattern = "<li class=\"nav-item\"><a class=\"nav-link\" href= \"pattern_"+i+"_matches_old.html\" target=\"center\">pattern "+i+"</a></li>";
             patternContent += aPattern+"\n";
             findMatchesOfPattern(i, allMatches, inputSourceDir, "old");
         }
@@ -126,11 +126,11 @@ public class HTMLViewer {
 
             //create a link for this pattern in the pattern file
             String aPattern =
-                    "<li class=\"nav-item\">" + "pattern-"+i+":(\n" +
+                    "<li class=\"nav-item\">" + "pattern-"+i+": \n" +
                         "<a class=\"nav-link\" href= \"pattern_"+i+"_matches_old.html\" target=\"center\">"+oldSup+" matches old</a>" +
                         "   /\n" +
                         "<a class=\"nav-link\" href= \"pattern_"+i+"_matches_new.html\" target=\"center\">"+newSup+" matches old</a>" +
-                     ")</li>\n" ;
+                     "</li>\n" ;
 
             patternContent += aPattern;
 
@@ -169,7 +169,7 @@ public class HTMLViewer {
                     findLineVariableNames(match, xmlFile, pyFileName);
                     //add markers to lines corresponding lines in python file
                     String newContent = HTMLHEADER+
-                            "Source code:"+ pyFileName +
+                            "Fullname: "+ pyFileName +
                             "<code>\n" +
                             addMarkers()+
                             "</code>\n" +
@@ -179,15 +179,13 @@ public class HTMLViewer {
                     writeHTML(htmlDir+"/"+htmlFileName, newContent);
 
                     //add a link of match i^th to its matchesContent
-                    String fullName = allMatches.item(i).getAttributes().getNamedItem("FullName").getNodeValue();
+                    String fullName = getLastName(allMatches.item(i).getAttributes().getNamedItem("FullName").getNodeValue());
 
                     // add link id="act" to the first match
                     if(count == 1){
-                        //matchesContent += "<li><a href=\""+htmlFileName+"\" target=\"right\" id=\"act\">["+count+"]-"+fullName+"</a></li>\n";
-                        matchesContent += "<li class=\"nav-item\"><a class=\"nav-link\" href=\""+htmlFileName+"\" target=\"right\" id=\"act\">["+count+"]-"+fullName+"</a></li>\n";
+                        matchesContent += "<li class=\"nav-item\"><a class=\"nav-link\" href=\""+htmlFileName+"\" target=\"right\" id=\"act\">match-"+count+": "+fullName+"</a></li>\n";
                     }else{
-                        //matchesContent += "<li><a href=\""+htmlFileName+"\" target=\"right\">["+count+"]-"+fullName+"</a></li>\n";
-                        matchesContent += "<li class=\"nav-item\"><a class=\"nav-link\" href=\""+htmlFileName+"\" target=\"right\">["+count+"]-"+fullName+"</a></li>\n";
+                        matchesContent += "<li class=\"nav-item\"><a class=\"nav-link\" href=\""+htmlFileName+"\" target=\"right\">match-"+count+": "+fullName+"</a></li>\n";
                     }
                     // increase number of visited match
                     ++count;
