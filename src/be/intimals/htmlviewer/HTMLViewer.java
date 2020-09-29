@@ -429,27 +429,29 @@ public class HTMLViewer {
     private String addMarkers(){
         StringBuilder sb = new StringBuilder();
         try {
-            for(int i=0; i<pythonSource.size(); ++i){
+            for(int i = 0; i<pythonSource.size(); ++i){
                 String line = pythonSource.get(i);
                 if(matchedLines.containsKey(i+1)){
                     //System.out.println("old "+line);
                     String newLine;
                     // if this line contains an empty string this line is comment
                     if(matchedLines.get(i+1).contains("")){
-                        newLine = "<pre><p><mark><"+COMMENT+">" + line + "</"+COMMENT+"></mark><p></pre>" + "\n";
+                        newLine = "<pre><mark>"+(i+1)+" <"+COMMENT+">" + line + "</"+COMMENT+"></mark></pre>";
                     }else{
                         //add color marker to variable names
                         line = addMarkerToVariable(line, matchedLines.get(i+1));
                         //add color marker to keywords
                         line = addMarkerToKeyword(line, keywords);
                         //add marker to highlight entire line
-                        newLine = "<pre><p><mark>" + line + "</mark><p></pre>" + "\n";
+                        newLine = "<pre><mark>"+(i+1)+" " + line + "</mark></pre>";
                     }
                     sb.append(newLine);
                     //System.out.println("new "+newLine);
                 }else{
-                    String newLine = "<pre>" + line + "</pre>\n";
+                    String newLine = "<pre>"+(i+1)+" " + line + "</pre>";
                     sb.append(newLine);
+                    sb.append("\n");
+
                 }
             }
         }catch (Exception e){

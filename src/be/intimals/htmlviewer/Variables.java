@@ -48,7 +48,7 @@ public class Variables {
             "        } \n" +
             "  \n" +
             "        .nav-item{ \n" +
-            "           margin: 10px 0;\n" +
+            "           margin: 7px 0;\n" +
             "        } \n" +
             "  \n" +
             "        .navbar-nav{ \n" +
@@ -69,6 +69,12 @@ public class Variables {
 
     // css colors for highlight source code
     private static String highLightColor =
+            "pre {\n" +
+                    "  display: block;\n" +
+                    "  font-family: monospace;\n" +
+                    "  white-space: pre;\n" +
+                    "  margin: 0.3em 0;\n" +
+                    "}\n"+
             // true variable color
             "   vc{\n" +
             "       color: red;\n" +
