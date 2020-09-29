@@ -87,7 +87,7 @@ public class Variables {
 
     // scripts
     public static String AJAXString =
-            "<link rel = \"stylesheet\" href= \"https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.6/css/bootstrap.css\"/> \n" +
+//            "<link rel = \"stylesheet\" href= \"https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.6/css/bootstrap.css\"/> \n" +
             "<script src= \"https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js\"> </script> \n" +
             "<script src=  \"https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js\"> </script> \n" +
             "<script src= \"https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.6/js/bootstrap.min.js\"> </script>\n"+

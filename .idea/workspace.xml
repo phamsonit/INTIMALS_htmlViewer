@@ -7,15 +7,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f9638163-c7c4-4b5f-9d6d-c25ee8343c51" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/artifacts/htmlViewer_jar/htmlViewer.jar" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/htmlViewer_jar/htmlViewer.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/htmlViewer/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/htmlViewer/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/htmlViewer/be/intimals/htmlviewer/HTMLViewer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/htmlViewer/be/intimals/htmlviewer/HTMLViewer.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/htmlViewer/be/intimals/htmlviewer/Utils.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/htmlViewer/be/intimals/htmlviewer/Utils.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/htmlViewer/be/intimals/htmlviewer/Variables.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/htmlViewer/be/intimals/htmlviewer/Variables.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/be/intimals/htmlviewer/HTMLViewer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/intimals/htmlviewer/HTMLViewer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/be/intimals/htmlviewer/Utils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/intimals/htmlviewer/Utils.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/be/intimals/htmlviewer/Variables.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/intimals/htmlviewer/Variables.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -28,11 +20,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Main.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Main.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Main.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="179">
-              <caret line="17" lean-forward="true" selection-start-line="14" selection-end-line="17" />
+              <caret line="17" selection-start-line="14" selection-end-line="17" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
                 <element signature="imports" expanded="true" />
@@ -41,11 +33,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="HTMLViewer.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="HTMLViewer.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/be/intimals/htmlviewer/HTMLViewer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1538">
-              <caret line="205" column="9" lean-forward="true" selection-start-line="205" selection-start-column="9" selection-end-line="205" selection-end-column="9" />
+            <state relative-caret-position="412">
+              <caret line="133" column="12" selection-start-line="133" selection-start-column="12" selection-end-line="133" selection-end-column="12" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="method#HTMLViewer#0;class#HTMLViewer#0" />
@@ -67,8 +59,8 @@
       <file leaf-file-name="Variables.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/be/intimals/htmlviewer/Variables.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="56">
-              <caret line="77" column="16" selection-start-line="77" selection-start-column="16" selection-end-line="77" selection-end-column="16" />
+            <state relative-caret-position="395">
+              <caret line="89" column="2" selection-start-line="89" selection-start-column="2" selection-end-line="89" selection-end-column="2" />
             </state>
           </provider>
         </entry>
@@ -82,17 +74,17 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/src/be/intimals/htmlviewer/Utils.java" />
-        <option value="$PROJECT_DIR$/src/be/intimals/htmlviewer/HTMLViewer.java" />
-        <option value="$PROJECT_DIR$/src/be/intimals/htmlviewer/Variables.java" />
         <option value="$PROJECT_DIR$/src/Main.java" />
+        <option value="$PROJECT_DIR$/src/be/intimals/htmlviewer/Variables.java" />
+        <option value="$PROJECT_DIR$/src/be/intimals/htmlviewer/HTMLViewer.java" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="246" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="463" />
     <option name="y" value="23" />
-    <option name="width" value="1650" />
-    <option name="height" value="825" />
+    <option name="width" value="1448" />
+    <option name="height" value="954" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -172,7 +164,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="23" width="1440" height="823" extended-state="6" />
+    <frame x="463" y="23" width="1448" height="954" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
@@ -185,10 +177,10 @@
       <window_info anchor="right" id="Maven Projects" order="3" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.4848485" />
       <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="7" visible="true" weight="0.40495867" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="7" visible="true" weight="0.20770128" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.16094421" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.16002844" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info id="UI Designer" order="2" />
@@ -686,10 +678,28 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="179">
+          <caret line="17" selection-start-line="14" selection-end-line="17" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/be/intimals/htmlviewer/Variables.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="395">
+          <caret line="89" column="2" selection-start-line="89" selection-start-column="2" selection-end-line="89" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/be/intimals/htmlviewer/HTMLViewer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1538">
-          <caret line="205" column="9" lean-forward="true" selection-start-line="205" selection-start-column="9" selection-end-line="205" selection-end-column="9" />
+        <state relative-caret-position="412">
+          <caret line="133" column="12" selection-start-line="133" selection-start-column="12" selection-end-line="133" selection-end-column="12" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="method#HTMLViewer#0;class#HTMLViewer#0" />
@@ -703,24 +713,6 @@
             <element signature="method#addMarkerToVariable#0;class#HTMLViewer#0" />
             <element signature="method#updateVariableColNr#0;class#HTMLViewer#0" />
             <element signature="method#addMarkerToKeyword#0;class#HTMLViewer#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/be/intimals/htmlviewer/Variables.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="56">
-          <caret line="77" column="16" selection-start-line="77" selection-start-column="16" selection-end-line="77" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="179">
-          <caret line="17" lean-forward="true" selection-start-line="14" selection-end-line="17" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
