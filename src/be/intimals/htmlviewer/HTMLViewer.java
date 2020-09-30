@@ -296,7 +296,7 @@ public class HTMLViewer {
                                 addMultipleLineID(nodeLineNr, nodeEndLineNr);
                             }else {
                                 int lineLength = pythonSource.get(Integer.valueOf(nodeLineNr)-1).trim().length()-1;
-                                if(variableLength == lineLength) {
+                                if(variableLength == lineLength && !variableName.contains("\"\"\"") && !variableName.contains("#")) {
                                     // add matched comment in single line
                                     addLineAndVariables("", Integer.valueOf(nodeLineNr));
                                 }
