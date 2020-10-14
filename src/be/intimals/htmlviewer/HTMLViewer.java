@@ -43,6 +43,7 @@ public class HTMLViewer {
             //read config file to find these information
             Config config = new Config(finalConfig);
             if(config.get2Class()){
+                createHTMLForClusters(config);
                 createHTMLForTwoClassPatterns(config);
             }else{
                 createHTMLForOneClassPatterns(config);
@@ -53,7 +54,7 @@ public class HTMLViewer {
         //view result in browser
         if(Files.exists(Paths.get(htmlDir+"/patterns.html"))) {
             try {
-                initHTMLFiles(htmlDir);
+                initHTMLFiles(htmlDir, getLastName(inputResultDir));
                 File htmlFile = new File(htmlDir + "/index.html");
                 Desktop.getDesktop().browse(htmlFile.toURI());
             } catch (Exception e) {
@@ -116,8 +117,9 @@ public class HTMLViewer {
         int nbPattern = allPatterns.getLength(); //count number of patterns
         //for each pattern find its matches from allMatches
         String patternContent = HTMLHEADER + AJAXString;
-        patternContent += "<p>List patterns: " + getLastName(inputResultDir) +"</p>\n";
+        patternContent += "<p>List patterns </p>\n";
         patternContent += "<ul class=\"navbar-nav\">\n";
+        int count = 1;
         for(int i = 1; i<=nbPattern; ++i){
             //get support
             String[] support = findSupport(i, allPatterns).split("-");
@@ -125,12 +127,22 @@ public class HTMLViewer {
             int newSup = Integer.valueOf(support[1]);
 
             //create a link for this pattern in the pattern file
-            String aPattern =
-                    "<li class=\"nav-item\">" + "pattern-"+i+": \n" +
-                        "<a class=\"nav-link\" href= \"pattern_"+i+"_matches_old.html\" target=\"center\">"+oldSup+" matches pos</a>" +
-                        "   /\n" +
-                        "<a class=\"nav-link\" href= \"pattern_"+i+"_matches_new.html\" target=\"center\">"+newSup+" matches nag</a>" +
-                     "</li>\n" ;
+            String aPattern;
+            if(count == 1) {
+                aPattern =
+                        "<li class=\"nav-item\">" + "pattern-" + i + ": \n" +
+                                "<a class=\"nav-link\" href= \"pattern_" + i + "_matches_old.html\" target=\"center\" id=\"act\">" + oldSup + " matches pos</a>" +
+                                "   /\n" +
+                                "<a class=\"nav-link\" href= \"pattern_" + i + "_matches_new.html\" target=\"center\">" + newSup + " matches nag</a>" +
+                                "</li>\n";
+            }else{
+                aPattern =
+                        "<li class=\"nav-item\">" + "pattern-" + i + ": \n" +
+                                "<a class=\"nav-link\" href= \"pattern_" + i + "_matches_old.html\" target=\"center\">" + oldSup + " matches pos</a>" +
+                                "   /\n" +
+                                "<a class=\"nav-link\" href= \"pattern_" + i + "_matches_new.html\" target=\"center\">" + newSup + " matches nag</a>" +
+                                "</li>\n";
+            }
 
             patternContent += aPattern;
 
@@ -142,6 +154,121 @@ public class HTMLViewer {
         patternContent += HTMLCLOSE+"\n";
         //create a patterns.html to list all patterns found
         writeHTML(htmlDir+"/patterns.html", patternContent);
+    }
+
+    /**
+     * create output html file for patterns from two classes
+     * @param config
+     */
+    private void createHTMLForPatternsInCluster(int clusterID, NodeList patterns, Config config) {
+
+        String matchesFile1 = inputResultDir+"/"+ getLastName(config.getOutputMatches1());
+        String matchesFile2 = inputResultDir+"/"+ getLastName(config.getOutputMatches2());
+
+        String oldInputSourceDir = inputSourceDir+"/"+getLastName(config.getInputFiles1());//"pos";
+        String newInputSourceDir = inputSourceDir+"/"+getLastName(config.getInputFiles2());//"nag";
+
+        //read all matches from matches files
+        NodeList allMatchesOld = readAllTagName(matchesFile1,"match");
+        NodeList allMatchesNew = readAllTagName(matchesFile2, "match");
+
+        //for each pattern find matches in the old and new
+        String patternFile = inputResultDir+"/"+getLastName(config.getOutputPath());//"q1_input_5_patterns.xml";
+        NodeList allPatterns = readAllTagName(patternFile,"subtree");
+
+        //for each pattern find its matches from allMatches
+        String patternContent = HTMLHEADER + AJAXString;
+        patternContent += "<p>List of patterns</p>\n";
+        patternContent += "<ul class=\"navbar-nav\">\n";
+        int count = 1;
+        for(int i = 0; i < patterns.getLength(); ++i){
+            if(patterns.item(i).getNodeType() == Node.ELEMENT_NODE){
+                //get pattern ID
+                int patternID = Integer.valueOf(patterns.item(i).getAttributes().getNamedItem("ID").getNodeValue());
+                //get support
+                String[] support = findSupport(patternID+1, allPatterns).split("-");
+                int oldSup = Integer.valueOf(support[0]);
+                int newSup = Integer.valueOf(support[1]);
+
+                //create a link for this pattern
+                String aPattern;
+                if(count == 1) {
+                    aPattern =
+                            "<li class=\"nav-item\">" + "pattern-" + (patternID + 1) + ": \n" +
+                                    "<a class=\"nav-link\" href= \"pattern_" + (patternID + 1) + "_matches_old.html\" target=\"center\" id=\"act\">" + oldSup + " matches pos</a>" +
+                                    "   /\n" +
+                                    "<a class=\"nav-link\" href= \"pattern_" + (patternID + 1) + "_matches_new.html\" target=\"center\">" + newSup + " matches nag</a>" +
+                                    "</li>\n";
+                    ++count;
+                }else{
+                    aPattern =
+                            "<li class=\"nav-item\">" + "pattern-" + (patternID + 1) + ": \n" +
+                                    "<a class=\"nav-link\" href= \"pattern_" + (patternID + 1) + "_matches_old.html\" target=\"center\">" + oldSup + " matches pos</a>" +
+                                    "   /\n" +
+                                    "<a class=\"nav-link\" href= \"pattern_" + (patternID + 1) + "_matches_new.html\" target=\"center\">" + newSup + " matches nag</a>" +
+                                    "</li>\n";
+
+                }
+
+                patternContent += aPattern;
+
+                //create equivalent matches for this pattern
+                findMatchesOfPattern(patternID+1, allMatchesOld, oldInputSourceDir, "old");
+                findMatchesOfPattern(patternID+1, allMatchesNew, newInputSourceDir, "new");
+            }
+
+        }
+        patternContent += "</ul>\n";
+        patternContent += HTMLCLOSE+"\n";
+        //create a patterns.html to list all patterns found
+        writeHTML(htmlDir+"/cluster_"+clusterID+"_patterns.html", patternContent);
+    }
+
+    /**
+     * create output html file for patterns from two classes
+     * @param config
+     */
+    private void createHTMLForClusters(Config config) {
+
+        // read all clusters
+        String matchesFile1 = inputResultDir+"/"+ getLastName(config.getOutputMatches1());
+        String clusterFile1 = matchesFile1.substring(0, matchesFile1.length()-4)+"_clusters.xml";
+        NodeList allClusters = readAllTagName(clusterFile1, "cluster");
+
+        String clusterContent = HTMLHEADER + AJAXString;
+        clusterContent += "<p>Clusters</p>\n";
+        clusterContent += "<ul class=\"navbar-nav\">\n";
+
+        // link to all patterns
+        clusterContent += "<li class=\"nav-item\">\n"+
+                            "<a class=\"nav-link\" href= \"patterns.html\" target=\"left\" id=\"act\">All patterns</a>\n" +
+                            "</li>\n";
+
+        // for each cluster, create a list of links to its patterns
+        int countCluster = 1;
+        for(int clu = 0; clu < allClusters.getLength(); ++clu){
+            if(allClusters.item(clu).getNodeType() == Node.ELEMENT_NODE){
+
+                // get all pattern in this cluster
+                NodeList patterns = allClusters.item(clu).getChildNodes();
+
+                //create a cluster_i_patterns.html containing link of patterns
+                createHTMLForPatternsInCluster(countCluster, patterns, config);
+
+                //create a link to this file
+                clusterContent += "<li class=\"nav-item\">\n" +
+                                "<a class=\"nav-link\" href= \"cluster_"+countCluster+"_patterns.html\" target=\"left\">cluster "+countCluster+"</a>"+
+                                "</li>\n";
+                ++countCluster;
+
+            }
+
+        }
+        clusterContent += "</ul>\n";
+        clusterContent += HTMLCLOSE+"\n";
+        //create a clusters.html to list all patterns found
+        writeHTML(htmlDir+"/clusters.html", clusterContent);
+
     }
 
     /**

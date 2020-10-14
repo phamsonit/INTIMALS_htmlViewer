@@ -75,6 +75,7 @@ public class Variables {
                     "  white-space: pre;\n" +
                     "  margin: 0.3em 0;\n" +
                     "}\n"+
+            "   p {text-align: center;} \n" +
             // true variable color
             "   vc{\n" +
             "       color: red;\n" +

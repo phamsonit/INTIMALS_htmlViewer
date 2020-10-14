@@ -42,15 +42,16 @@ public class Utils {
      * create core html files
      * @param htmlDir : directory containing all html files
      */
-    public static void  initHTMLFiles(String htmlDir){
+    public static void  initHTMLFiles(String htmlDir, String title){
         //create index.html file
         String indexContent =
                 "<!DOCTYPE html>\n" +
                         "<html>   \n" +
                         "   <head>\n" +
-                        "      <title>Patterns Visualisation</title>\n" +
+                        "      <title>"+title+"</title>\n" +
                         "   </head>   \n" +
-                        "   <frameset cols = \"25%,25%,50%\">\n" +
+                        "   <frameset cols = \"15%,25%,25%,35%\">\n" +
+                        "      <frame name = \"cluster\" src = \"clusters.html\" />\n" +
                         "      <frame name = \"left\" src = \"patterns.html\" />\n" +
                         "      <frame name = \"center\" src = \"matches.html\" />\n" +
                         "      <frame name = \"right\" src = \"sourcecode.html\" />\n" +
