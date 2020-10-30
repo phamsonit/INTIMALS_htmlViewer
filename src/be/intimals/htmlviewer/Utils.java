@@ -60,7 +60,7 @@ public class Utils {
                         "      </noframes>\n" +
                         "   </frameset>   \n" +
                         "</html>";
-        String indexFile = htmlDir+"/index.html";
+        String indexFile = htmlDir+"/_index.html";
         writeHTML(indexFile, indexContent);
 
         //create matches.html file

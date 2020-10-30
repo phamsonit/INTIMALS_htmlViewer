@@ -42,12 +42,8 @@ public class HTMLViewer {
         try {
             //read config file to find these information
             Config config = new Config(finalConfig);
-            if(config.get2Class()){
-                createHTMLForClusters(config);
-                createHTMLForTwoClassPatterns(config);
-            }else{
-                createHTMLForOneClassPatterns(config);
-            }
+            // create html files
+            createHTMLFiles(config);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -55,7 +51,7 @@ public class HTMLViewer {
         if(Files.exists(Paths.get(htmlDir+"/patterns.html"))) {
             try {
                 initHTMLFiles(htmlDir, getLastName(inputResultDir));
-                File htmlFile = new File(htmlDir + "/index.html");
+                File htmlFile = new File(htmlDir + "/_index.html");
                 Desktop.getDesktop().browse(htmlFile.toURI());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -63,12 +59,39 @@ public class HTMLViewer {
         }
     }
 
-
     /**
-     * create html for patterns from a class
+     * create output html file for patterns from two classes
      * @param config
      */
-    private void createHTMLForOneClassPatterns(Config config) {
+    private void createHTMLFiles(Config config) {
+        //TODO: how to show 2 clusters of pos and nag separately
+        // read all clusters
+        String matchesFile;
+        if(config.get2Class()){
+            matchesFile = inputResultDir+"/"+ getLastName(config.getOutputMatches1());
+            // create html file for all patterns
+            createPatternsHTMLForTwoClass(config);
+        }else{
+            matchesFile = inputResultDir+"/"+ getLastName(config.getOutputMatches());
+            // create html file for all patterns
+            createPatternsHTMLForOneClass(config);
+        }
+
+        String clusterFile = matchesFile.substring(0, matchesFile.length()-4)+"_clusters.xml";
+
+        // create html content for this cluster
+        String clusterContent = createClusterContent(config, clusterFile);
+
+        //create a clusters.html to list all patterns found
+        writeHTML(htmlDir+"/clusters.html", clusterContent);
+    }
+
+
+    /**
+     * create html file for all patterns from a class
+     * @param config
+     */
+    private void createPatternsHTMLForOneClass(Config config) {
         //get all matches
         String matchesFileName = inputResultDir+"/"+ getLastName(config.getOutputMatches());
         NodeList allMatches = readAllTagName(matchesFileName, "match");
@@ -84,9 +107,14 @@ public class HTMLViewer {
         patternContent += "<p> Patterns: " + getLastName(inputResultDir) +"</p>\n";
         patternContent += "<ul class=\"navbar-nav\">\n";
         for(int i = 1; i<=nbPattern; ++i){
-            String aPattern = "<li class=\"nav-item\"><a class=\"nav-link\" href= \"pattern_"+i+"_matches_old.html\" target=\"center\">pattern "+i+"</a></li>";
+            String aPattern;
+            if(i == 1){
+                aPattern = "<li class=\"nav-item\"><a class=\"nav-link\" href= \"pattern_"+i+"_matches__.html\" target=\"center\" id=\"act\">pattern "+i+"</a></li>";
+            }else {
+                aPattern = "<li class=\"nav-item\"><a class=\"nav-link\" href= \"pattern_" + i + "_matches__.html\" target=\"center\">pattern " + i + "</a></li>";
+            }
             patternContent += aPattern+"\n";
-            findMatchesOfPattern(i, allMatches, inputSourceDir, "old");
+            findMatchesOfPattern(i, allMatches, inputSourceDir, "_");
         }
         patternContent += "</ul>\n";
         patternContent += HTMLCLOSE+"\n";
@@ -95,10 +123,10 @@ public class HTMLViewer {
     }
 
     /**
-     * create output html file for patterns from two classes
+     * create html file for all patterns from two classes
      * @param config
      */
-    private void createHTMLForTwoClassPatterns(Config config) {
+    private void createPatternsHTMLForTwoClass(Config config) {
 
         String matchesFile1 = inputResultDir+"/"+ getLastName(config.getOutputMatches1());
         String matchesFile2 = inputResultDir+"/"+ getLastName(config.getOutputMatches2());
@@ -128,7 +156,7 @@ public class HTMLViewer {
 
             //create a link for this pattern in the pattern file
             String aPattern;
-            if(count == 1) {
+            if(i == 1) {
                 aPattern =
                         "<li class=\"nav-item\">" + "pattern-" + i + ": \n" +
                                 "<a class=\"nav-link\" href= \"pattern_" + i + "_matches_old.html\" target=\"center\" id=\"act\">" + oldSup + " matches pos</a>" +
@@ -157,10 +185,116 @@ public class HTMLViewer {
     }
 
     /**
+     * create html content for clusters
+     * @param config
+     * @param clusterFile
+     * @return
+     */
+    private String createClusterContent(Config config, String clusterFile) {
+
+        NodeList allClusters = readAllTagName(clusterFile, "cluster");
+
+        String clusterContent = HTMLHEADER + AJAXString;
+        clusterContent += "<p>Clusters</p>\n";
+        clusterContent += "<ul class=\"navbar-nav\">\n";
+
+        // link to all patterns
+        clusterContent += "<li class=\"nav-item\">\n"+
+                            "<a class=\"nav-link\" href= \"patterns.html\" target=\"left\" id=\"act\">All patterns</a>\n" +
+                            "</li>\n";
+
+        // for each cluster, create a list of links to its patterns
+        int countCluster = 1;
+        for(int clu = 0; clu < allClusters.getLength(); ++clu){
+            if(allClusters.item(clu).getNodeType() == Node.ELEMENT_NODE){
+                // get all pattern in this cluster
+                NodeList patterns = allClusters.item(clu).getChildNodes();
+                //create a cluster_i_patterns.html containing link to patterns
+                if(config.get2Class()){
+                    // create html file containing all patterns in this cluster
+                    createPatternsHTMLForClusterInTwoClass(countCluster, patterns, config);
+                }else {
+                    // create html file containing all patterns in this cluster
+                    createPatternsHTMLForClusterInOneClass(countCluster, patterns, config);
+                }
+                //create a link to this file
+                clusterContent += "<li class=\"nav-item\">\n" +
+                        "<a class=\"nav-link\" href= \"cluster_"+countCluster+"_patterns.html\" target=\"left\">cluster "+countCluster+"</a>"+
+                        "</li>\n";
+                ++countCluster;
+            }
+
+        }
+        clusterContent += "</ul>\n";
+        clusterContent += HTMLCLOSE+"\n";
+        return clusterContent;
+    }
+
+    /**
      * create output html file for patterns from two classes
      * @param config
      */
-    private void createHTMLForPatternsInCluster(int clusterID, NodeList patterns, Config config) {
+    private void createPatternsHTMLForClusterInOneClass(int clusterID, NodeList patterns, Config config) {
+
+        //get matches
+        String matchesFile = inputResultDir+"/"+ getLastName(config.getOutputMatches());
+
+        //read all matches from matches files
+        NodeList allMatchesOld = readAllTagName(matchesFile,"match");
+
+        //read all patterns
+        String patternFile = inputResultDir+"/"+getLastName(config.getOutputPath());//"q1_input_5_patterns.xml";
+        NodeList allPatterns = readAllTagName(patternFile,"subtree");
+
+        //for each pattern find its matches from allMatches
+        String patternContent = HTMLHEADER + AJAXString;
+        patternContent += "<p>List of patterns</p>\n";
+        patternContent += "<ul class=\"navbar-nav\">\n";
+        int count = 1;
+        for(int i = 0; i < patterns.getLength(); ++i){
+            if(patterns.item(i).getNodeType() == Node.ELEMENT_NODE){
+                //get pattern ID
+                int patternID = Integer.valueOf(patterns.item(i).getAttributes().getNamedItem("ID").getNodeValue());
+                //get support
+                String[] support = findSupport(patternID, allPatterns).split("-");
+                int oldSup = Integer.valueOf(support[0]);
+                //int newSup = Integer.valueOf(support[1]);
+
+                //create a link for this pattern
+                String aPattern;
+                if(count == 1) {
+                    aPattern =
+                            "<li class=\"nav-item\">" + "pattern-" + (patternID) + ": \n" +
+                                    "<a class=\"nav-link\" href= \"pattern_" + (patternID) + "_matches__.html\" target=\"center\" id=\"act\">" + oldSup + " matches pos</a>" +
+                                    "\n";
+                    ++count;
+                }else{
+                    aPattern =
+                            "<li class=\"nav-item\">" + "pattern-" + (patternID) + ": \n" +
+                                    "<a class=\"nav-link\" href= \"pattern_" + (patternID) + "_matches__.html\" target=\"center\">" + oldSup + " matches pos</a>" +
+                                    "\n";
+
+                }
+
+                patternContent += aPattern;
+
+                //create equivalent matches for this pattern
+                findMatchesOfPattern(patternID+1, allMatchesOld, inputSourceDir, "_");
+
+            }
+
+        }
+        patternContent += "</ul>\n";
+        patternContent += HTMLCLOSE+"\n";
+        //create a patterns.html to list all patterns found
+        writeHTML(htmlDir+"/cluster_"+clusterID+"_patterns.html", patternContent);
+    }
+
+    /**
+     * create output html file for patterns from two classes
+     * @param config
+     */
+    private void createPatternsHTMLForClusterInTwoClass(int clusterID, NodeList patterns, Config config) {
 
         String matchesFile1 = inputResultDir+"/"+ getLastName(config.getOutputMatches1());
         String matchesFile2 = inputResultDir+"/"+ getLastName(config.getOutputMatches2());
@@ -186,7 +320,7 @@ public class HTMLViewer {
                 //get pattern ID
                 int patternID = Integer.valueOf(patterns.item(i).getAttributes().getNamedItem("ID").getNodeValue());
                 //get support
-                String[] support = findSupport(patternID+1, allPatterns).split("-");
+                String[] support = findSupport(patternID, allPatterns).split("-");
                 int oldSup = Integer.valueOf(support[0]);
                 int newSup = Integer.valueOf(support[1]);
 
@@ -194,18 +328,18 @@ public class HTMLViewer {
                 String aPattern;
                 if(count == 1) {
                     aPattern =
-                            "<li class=\"nav-item\">" + "pattern-" + (patternID + 1) + ": \n" +
-                                    "<a class=\"nav-link\" href= \"pattern_" + (patternID + 1) + "_matches_old.html\" target=\"center\" id=\"act\">" + oldSup + " matches pos</a>" +
+                            "<li class=\"nav-item\">" + "pattern-" + (patternID) + ": \n" +
+                                    "<a class=\"nav-link\" href= \"pattern_" + (patternID) + "_matches_old.html\" target=\"center\" id=\"act\">" + oldSup + " matches pos</a>" +
                                     "   /\n" +
-                                    "<a class=\"nav-link\" href= \"pattern_" + (patternID + 1) + "_matches_new.html\" target=\"center\">" + newSup + " matches nag</a>" +
+                                    "<a class=\"nav-link\" href= \"pattern_" + (patternID) + "_matches_new.html\" target=\"center\">" + newSup + " matches nag</a>" +
                                     "</li>\n";
                     ++count;
                 }else{
                     aPattern =
-                            "<li class=\"nav-item\">" + "pattern-" + (patternID + 1) + ": \n" +
-                                    "<a class=\"nav-link\" href= \"pattern_" + (patternID + 1) + "_matches_old.html\" target=\"center\">" + oldSup + " matches pos</a>" +
+                            "<li class=\"nav-item\">" + "pattern-" + (patternID) + ": \n" +
+                                    "<a class=\"nav-link\" href= \"pattern_" + (patternID) + "_matches_old.html\" target=\"center\">" + oldSup + " matches pos</a>" +
                                     "   /\n" +
-                                    "<a class=\"nav-link\" href= \"pattern_" + (patternID + 1) + "_matches_new.html\" target=\"center\">" + newSup + " matches nag</a>" +
+                                    "<a class=\"nav-link\" href= \"pattern_" + (patternID) + "_matches_new.html\" target=\"center\">" + newSup + " matches nag</a>" +
                                     "</li>\n";
 
                 }
@@ -213,8 +347,8 @@ public class HTMLViewer {
                 patternContent += aPattern;
 
                 //create equivalent matches for this pattern
-                findMatchesOfPattern(patternID+1, allMatchesOld, oldInputSourceDir, "old");
-                findMatchesOfPattern(patternID+1, allMatchesNew, newInputSourceDir, "new");
+                findMatchesOfPattern(patternID, allMatchesOld, oldInputSourceDir, "old");
+                findMatchesOfPattern(patternID, allMatchesNew, newInputSourceDir, "new");
             }
 
         }
@@ -224,52 +358,6 @@ public class HTMLViewer {
         writeHTML(htmlDir+"/cluster_"+clusterID+"_patterns.html", patternContent);
     }
 
-    /**
-     * create output html file for patterns from two classes
-     * @param config
-     */
-    private void createHTMLForClusters(Config config) {
-
-        // read all clusters
-        String matchesFile1 = inputResultDir+"/"+ getLastName(config.getOutputMatches1());
-        String clusterFile1 = matchesFile1.substring(0, matchesFile1.length()-4)+"_clusters.xml";
-        NodeList allClusters = readAllTagName(clusterFile1, "cluster");
-
-        String clusterContent = HTMLHEADER + AJAXString;
-        clusterContent += "<p>Clusters</p>\n";
-        clusterContent += "<ul class=\"navbar-nav\">\n";
-
-        // link to all patterns
-        clusterContent += "<li class=\"nav-item\">\n"+
-                            "<a class=\"nav-link\" href= \"patterns.html\" target=\"left\" id=\"act\">All patterns</a>\n" +
-                            "</li>\n";
-
-        // for each cluster, create a list of links to its patterns
-        int countCluster = 1;
-        for(int clu = 0; clu < allClusters.getLength(); ++clu){
-            if(allClusters.item(clu).getNodeType() == Node.ELEMENT_NODE){
-
-                // get all pattern in this cluster
-                NodeList patterns = allClusters.item(clu).getChildNodes();
-
-                //create a cluster_i_patterns.html containing link of patterns
-                createHTMLForPatternsInCluster(countCluster, patterns, config);
-
-                //create a link to this file
-                clusterContent += "<li class=\"nav-item\">\n" +
-                                "<a class=\"nav-link\" href= \"cluster_"+countCluster+"_patterns.html\" target=\"left\">cluster "+countCluster+"</a>"+
-                                "</li>\n";
-                ++countCluster;
-
-            }
-
-        }
-        clusterContent += "</ul>\n";
-        clusterContent += HTMLCLOSE+"\n";
-        //create a clusters.html to list all patterns found
-        writeHTML(htmlDir+"/clusters.html", clusterContent);
-
-    }
 
     /**
      * for each match of the given patternID create a html file
@@ -290,7 +378,6 @@ public class HTMLViewer {
                     Node match = allMatches.item(i);
                     //get Python file name from a match
                     String pyFileName = inputDir+"/"+getFileNameFromMatch(match);
-                    //TODO: consider java case
                     String xmlFile = pyFileName.substring(0, pyFileName.length() - 2) + "xml";
                     //find lines of a match in xmlFile
                     findLineVariableNames(match, xmlFile, pyFileName);
@@ -395,9 +482,9 @@ public class HTMLViewer {
                         String variableName="";
                         //get variable name
                         if( isMultipleLines && node.getChildNodes().getLength() == 1 ) {
-                            variableName = "comment";
+                            variableName = "multipleLineComment";
                         }else {
-                            if (node.getChildNodes().getLength() == 1) {
+                            if (node.getChildNodes().getLength() == 1) { //leaf node
                                 variableName = nodeColNr + numSep + nodeEndColNr + strSep + node.getTextContent().trim();
                             } else {
                                 //find dummy variable line and column number
@@ -405,34 +492,46 @@ public class HTMLViewer {
                                 if (isDummyMatch(matchID, node) && !getDummyVariable(node).isEmpty()) {
                                     //System.out.println(node.getNodeName()+" "+getDummyVariable(node));
                                     variableName = nodeColNr + numSep + nodeEndColNr + strSep + getDummyVariable(node) + strSep + "dummy";
+                                }else{
+                                    // Try, ExceptHandler, ExceptHandler
+                                    Set<String> exceptionKeywords = new HashSet<>(Arrays.asList("Try","ExceptHandler","ExceptHandler",""));
+                                    if(exceptionKeywords.contains(node.getNodeName())){
+                                        variableName = "exceptionKeywords";
+                                    }
                                 }
                             }
+
                         }
-                        //TODO: add marker to keyword that lines in different line
+
                         //this node doesn't have variable name or dummy name, e.g, Module, Func, ...
                         if(variableName.isEmpty()) return;
 
-                        if( isMultipleLines && node.getChildNodes().getLength() > 1) {
-                            // dummy variable is in multiple lines, e.g, comments
-                            if(isDummyMatch(matchID, node) && !getDummyVariable(node).isEmpty()){
-                                addMultipleLineID(nodeLineNr, nodeEndLineNr);
-                            }
+                        if(variableName.equals("exceptionKeywords")){
+                            addLineAndVariables("exceptionKeywords", Integer.valueOf(nodeLineNr));
                         }else{
-                            // matched variable has multiple lines, e.g, comments
-                            if( isMultipleLines && node.getChildNodes().getLength() == 1){
-                                addMultipleLineID(nodeLineNr, nodeEndLineNr);
-                            }else {
-                                int lineLength = pythonSource.get(Integer.valueOf(nodeLineNr)-1).trim().length()-1;
-                                if(variableLength == lineLength && !variableName.contains("\"\"\"") && !variableName.contains("#")) {
-                                    // add matched comment in single line
-                                    addLineAndVariables("", Integer.valueOf(nodeLineNr));
+                            if( isMultipleLines && node.getChildNodes().getLength() > 1) {
+                                // dummy variable is in multiple lines, e.g, comments
+                                if(isDummyMatch(matchID, node) && !getDummyVariable(node).isEmpty()){
+                                    addMultipleLineID(nodeLineNr, nodeEndLineNr);
                                 }
-                                else {
-                                    // add matched variable in single line
-                                    addLineAndVariables(variableName, Integer.valueOf(nodeLineNr));
+                            }else{
+                                // matched variable has multiple lines, e.g, comments
+                                if( isMultipleLines && node.getChildNodes().getLength() == 1){
+                                    addMultipleLineID(nodeLineNr, nodeEndLineNr);
+                                }else {
+                                    int lineLength = pythonSource.get(Integer.valueOf(nodeLineNr)-1).trim().length()-1;
+                                    if(variableLength == lineLength && !variableName.contains("\"\"\"") && !variableName.contains("#")) {
+                                        // add matched comment in single line
+                                        addLineAndVariables("", Integer.valueOf(nodeLineNr));
+                                    }
+                                    else {
+                                        // add matched variable in single line
+                                        addLineAndVariables(variableName, Integer.valueOf(nodeLineNr));
+                                    }
                                 }
                             }
                         }
+
                     } else {//search matchID in children list
                         if (node.hasChildNodes()) {
                             NodeList nodeList = node.getChildNodes();
@@ -595,10 +694,14 @@ public class HTMLViewer {
      * @return
      */
     private String addMarkerToVariable(String line, Set<String> variables){
+        if(variables.contains("exceptionKeywords")){
+            return "<"+KEYCOLOR+">" + line + "</"+KEYCOLOR+">";
+        }
         try {
             while (!variables.isEmpty()) {
                 Iterator<String> variable = variables.iterator();
                 if (variable.hasNext()) {
+
                     String element = variable.next();
                     String[] temp = element.split(strSep); // dummy/variable = ColNr#EndColNr;variableName;dummy / ColNr#EndColNr;variableName
 
@@ -626,6 +729,27 @@ public class HTMLViewer {
         }catch (Exception e){
             System.out.println("add color marker error");
             System.out.println(line+" "+variables);
+        }
+        return line;
+    }
+
+    /**
+     * add color marker to keywords
+     * @param line : line of code
+     * @return
+     */
+    private String addMarkerToKeyword(String line, Set<String> keywords){
+        String[]temp = line.split(" ");
+        for(int i=0; i<temp.length; ++i){
+            if(!temp[i].isEmpty()) {
+                if (keywords.contains(temp[i].trim())) {
+                    String markedIdentifier = "<"+KEYCOLOR+">" + temp[i] + "</"+KEYCOLOR+">";
+                    int index = findIdentifierIndex(line, temp[i]);
+                    line = line.substring(0, index-1)+
+                            markedIdentifier+
+                            line.substring(index + temp[i].length()-1);
+                }
+            }
         }
         return line;
     }
@@ -659,26 +783,7 @@ public class HTMLViewer {
         return newVariables;
     }
 
-    /**
-     * add color marker to keywords
-     * @param line : line of code
-     * @return
-     */
-    private String addMarkerToKeyword(String line, Set<String> keywords){
-        String[]temp = line.split(" ");
-        for(int i=0; i<temp.length; ++i){
-            if(!temp[i].isEmpty()) {
-                if (keywords.contains(temp[i].trim())) {
-                    String markedIdentifier = "<"+KEYCOLOR+">" + temp[i] + "</"+KEYCOLOR+">";
-                    int index = findIdentifierIndex(line, temp[i]);
-                    line = line.substring(0, index-1)+
-                            markedIdentifier+
-                            line.substring(index + temp[i].length()-1);
-                }
-            }
-        }
-        return line;
-    }
+
 
      /**
      * return all nodes that have tagName name
